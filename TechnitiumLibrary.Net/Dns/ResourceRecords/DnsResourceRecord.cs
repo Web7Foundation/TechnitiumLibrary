@@ -117,6 +117,26 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         ANAME = 65280, //private use - draft-ietf-dnsop-aname-04
         FWD = 65281, //private use - conditional forwarder
         APP = 65282, //private use - application
+
+        //private use - DID resource record types + UUBLAddress
+        DIDID = 65488,
+        DIDCTX = 65489,
+        DIDSVC = 65490,
+        DIDFFD3 = 65491,
+        DIDPUBK = 65492,
+        DIDSUBSIG = 65493,
+        DIDFFD6 = 65494,
+        DIDFFD7 = 65495,
+        DIDATHN = 65496,
+        DIDFFD9 = 65497,
+        DIDFFDA = 65498,
+        DIDFFDB = 65499,
+        DIDTXT = 65500,
+        DIDEXTDAT = 65501,
+        DIDFRAG_OBSOLETE = 65502,
+        DIDDOC = 65503,
+
+        UUBLAddress = 65472,
     }
 
     public enum DnsClass : ushort
