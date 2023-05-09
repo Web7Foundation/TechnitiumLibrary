@@ -386,6 +386,10 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.APP:
                     return new DnsApplicationRecordData(s);
 
+                // did RR types:
+                case DnsResourceRecordType.DIDID:
+                    return new DnsDIDIDRecord(s);
+
                 default:
                     return new DnsUnknownRecordData(s);
             }
