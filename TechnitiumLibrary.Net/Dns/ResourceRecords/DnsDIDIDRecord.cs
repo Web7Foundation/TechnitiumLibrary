@@ -22,9 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using TechnitiumLibrary.IO;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
