@@ -24,6 +24,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using TechnitiumLibrary.IO;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
@@ -60,26 +61,36 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         protected override void ReadRecordData(Stream s)
         {
-            int len = s.ReadByte();
-            if (len < 0)
+            int length = s.ReadByte();
+            if (length < 0)
                 throw new EndOfStreamException();
             _didctxTag = "";
-            if (len > 0) _didctxTag = Encoding.ASCII.GetString(s.ReadBytes(len));
+            if (length > 0) _didctxTag = Encoding.ASCII.GetString(s.ReadBytes(length));
 
-            len = s.ReadByte();
-            if (len < 0)
+            length = s.ReadByte();
+            if (length < 0)
                 throw new EndOfStreamException();
             _didctxData = "";
-            if (len > 0) _didctxData = Encoding.ASCII.GetString(s.ReadBytes(len));
+            if (length > 0) _didctxData = Encoding.ASCII.GetString(s.ReadBytes(length));
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool canonicalForm)
         {
-            s.WriteByte(Convert.ToByte(_didctxTag.Length));
-            if (_didctxTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxTag));
+            byte[] tagBytes = Encoding.ASCII.GetBytes(_didctxTag);
 
-            s.WriteByte(Convert.ToByte(_didctxData.Length));
-            if (_didctxData.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxData));
+            s.WriteByte(Convert.ToByte(tagBytes.Length));
+            s.Write(tagBytes, 0, tagBytes.Length);
+
+            //s.WriteByte(Convert.ToByte(_didctxTag.Length));
+            //if (_didctxTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxTag));
+
+            byte[] dataBytes = Encoding.ASCII.GetBytes(_didctxData);
+
+            s.WriteByte(Convert.ToByte(dataBytes.Length));
+            s.Write(dataBytes, 0, dataBytes.Length);
+
+            //s.WriteByte(Convert.ToByte(_didctxData.Length));
+            //if (_didctxData.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxData));
         }
 
         #endregion

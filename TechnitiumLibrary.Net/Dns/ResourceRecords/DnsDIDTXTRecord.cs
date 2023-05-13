@@ -81,7 +81,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (len > 0) _didtxtTextData = Encoding.ASCII.GetString(s.ReadBytes(len));
         }
 
-        protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool cannonicalFrom)
+        protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool canonicalForm)
         {
             s.WriteByte(Convert.ToByte(_didtxtTag.Length));
             if (_didtxtTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didtxtTag));

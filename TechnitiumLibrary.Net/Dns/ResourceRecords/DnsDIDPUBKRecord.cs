@@ -99,7 +99,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (len > 0) _didpubkControllerDID = Encoding.ASCII.GetString(s.ReadBytes(len));
         }
 
-        protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool cannonicalForm)
+        protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool canonicalForm)
         {
             s.WriteByte(Convert.ToByte(_didpubkTag.Length));
             if (_didpubkTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didpubkTag));

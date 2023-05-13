@@ -388,7 +388,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
                 // did RR types:
                 case DnsResourceRecordType.DIDID:
-                    return new DnsDIDIDRecord(s);
+                    return new DnsDIDIDRecordData(s);
 
                 default:
                     return new DnsUnknownRecordData(s);
