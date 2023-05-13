@@ -53,19 +53,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             : base(s)
         { }
 
-        public DnsDIDPUBKRecord(dynamic jsonResourceRecord)
-        {
-            _rdLength = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
-            string[] parts = (jsonResourceRecord.data.Value as string).Split(' ');
-
-            _didpubkTag = parts[0];
-            _didpubkDID = parts[1];
-            _didpubkType = parts[2];
-            _didpubkSubjectPublicKey = parts[3];
-            _didpubkControllerDID = parts[4];
-        }
-
         public DnsDIDPUBKRecord(string didpubkTag, string didpubkDID, string didpubkType, string didpubkSubjectPublicKey, string didpubkController)
         {
             _didpubkTag = didpubkTag;

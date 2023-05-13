@@ -52,17 +52,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _didsubsigSigData = didsubsigData;
         }
 
-        public DnsDIDSUBSIGRecord(dynamic jsonResourceRecord)
-        {
-            _rdLength = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
-            string[] parts = (jsonResourceRecord.data.Value as string).Split(' ');
-
-            _didsubsigTag = parts[0];
-            _didsubsigDID = parts[1];
-            _didsubsigSigData = parts[2];
-        }
-
         public DnsDIDSUBSIGRecord(Stream s)
             : base(s)
         { }

@@ -50,16 +50,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _didctxData = didctxData;
         }
 
-        public DnsDIDCTXRecord(dynamic jsonResourceRecord)
-        {
-            _rdLength = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
-            string[] parts = (jsonResourceRecord.data.Value as string).Split(' ');
-
-            _didctxTag = parts[0];
-            _didctxData = parts[1];
-        }
-
         public DnsDIDCTXRecord(Stream s)
             : base(s)
         { }

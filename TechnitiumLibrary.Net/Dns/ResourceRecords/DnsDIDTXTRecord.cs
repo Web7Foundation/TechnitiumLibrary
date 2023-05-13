@@ -52,17 +52,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _didtxtTextData = didtxtData;
         }
 
-        public DnsDIDTXTRecord(dynamic jsonResourceRecord)
-        {
-            _rdLength = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
-            string[] parts = (jsonResourceRecord.data.Value as string).Split(' ');
-
-            _didtxtTag = parts[0];
-            _didtxtDID = parts[1];
-            _didtxtTextData = parts[2];
-        }
-
         public DnsDIDTXTRecord(Stream s)
             : base(s)
         { }

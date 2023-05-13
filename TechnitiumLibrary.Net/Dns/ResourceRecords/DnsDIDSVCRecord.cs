@@ -53,19 +53,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             : base(s)
         { }
 
-        public DnsDIDSVCRecord(dynamic jsonResourceRecord)
-        {
-            _rdLength = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
-            string[] parts = (jsonResourceRecord.data.Value as string).Split(' ');
-
-            _didsvcTag = parts[0];
-            _didsvcDID = parts[1];
-            _didsvcType = parts[2];
-            _didsvcDescription = parts[3];
-            _didsvcServiceEndpointUrl = parts[4];
-        }
-
         public DnsDIDSVCRecord(string didsvcTag, string didsvcDID, string didsvcType, string didsvcDescription, string didsvcServiceEndpointUrl)
         {
             _didsvcTag = didsvcTag;

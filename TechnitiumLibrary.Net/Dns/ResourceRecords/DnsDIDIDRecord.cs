@@ -45,13 +45,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             : base(s)
         { }
 
-        public DnsDIDIDRecord(dynamic jsonResourceRecord)
-        {
-            _rdLength = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
-            _dididDID = DnsDatagram.DecodeCharacterString(jsonResourceRecord.data.Value);
-        }
-
         #endregion
 
         #region protected
