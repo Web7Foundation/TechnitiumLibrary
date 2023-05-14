@@ -390,6 +390,9 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.DIDID:
                     return new DnsDIDIDRecordData(s);
 
+                case DnsResourceRecordType.DIDCTX:
+                    return new DnsDIDCTXRecordData(s);
+
                 default:
                     return new DnsUnknownRecordData(s);
             }
