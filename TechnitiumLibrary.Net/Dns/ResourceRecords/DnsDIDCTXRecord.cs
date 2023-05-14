@@ -61,23 +61,26 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         protected override void ReadRecordData(Stream s)
         {
-            int length = s.ReadByte();
-            if (length < 0)
+            int len = s.ReadByte();
+            if (len < 0)
                 throw new EndOfStreamException();
             _didctxTag = "";
-            if (length > 0) _didctxTag = Encoding.ASCII.GetString(s.ReadBytes(length));
+            if (len > 0) _didctxTag = Encoding.ASCII.GetString(s.ReadBytes(len));
 
-            length = s.ReadByte();
-            if (length < 0)
+            len = s.ReadByte();
+            if (len < 0)
                 throw new EndOfStreamException();
             _didctxData = "";
-            if (length > 0) _didctxData = Encoding.ASCII.GetString(s.ReadBytes(length));
+            if (len > 0) _didctxData = Encoding.ASCII.GetString(s.ReadBytes(len));
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool canonicalForm)
         {
-            s.Write(Encoding.ASCII.GetBytes(_didctxTag));
-            s.Write(Encoding.ASCII.GetBytes(_didctxTag));
+            s.WriteByte(Convert.ToByte(_didctxTag.Length));
+            if (_didctxTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxTag));
+
+            s.WriteByte(Convert.ToByte(_didctxData.Length));
+            if (_didctxData.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxData));        
         }
 
         #endregion
@@ -144,8 +147,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             get
             {
                 ushort dataLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didctxData.Length / 255d)) + _didctxData.Length);
-                ushort tagLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didctxTag.Length / 255d)) + _didctxTag.Length);
-                return (ushort)(dataLength + tagLength);
+                return dataLength;
             }
 
             #endregion
