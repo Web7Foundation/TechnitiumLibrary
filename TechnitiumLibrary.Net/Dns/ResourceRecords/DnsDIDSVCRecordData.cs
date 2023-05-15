@@ -26,7 +26,7 @@ using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsDIDSVCRecord : DnsResourceRecordData
+    public class DnsDIDSVCRecordData : DnsResourceRecordData
     {
         #region variables
 
@@ -40,7 +40,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDSVCRecord(string value)
+        public DnsDIDSVCRecordData(string value)
         {
             _didsvcTag = ""; 
             _didsvcDID = "";
@@ -49,11 +49,11 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _didsvcServiceEndpointUrl = value;
         }
 
-        public DnsDIDSVCRecord(Stream s)
+        public DnsDIDSVCRecordData(Stream s)
             : base(s)
         { }
 
-        public DnsDIDSVCRecord(string didsvcTag, string didsvcDID, string didsvcType, string didsvcDescription, string didsvcServiceEndpointUrl)
+        public DnsDIDSVCRecordData(string didsvcTag, string didsvcDID, string didsvcType, string didsvcDescription, string didsvcServiceEndpointUrl)
         {
             _didsvcTag = didsvcTag;
             _didsvcDID = didsvcDID;
@@ -126,7 +126,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (ReferenceEquals(this, obj))
                 return true;
 
-            DnsDIDSVCRecord other = obj as DnsDIDSVCRecord;
+            DnsDIDSVCRecordData other = obj as DnsDIDSVCRecordData;
             if (other == null)
                 return false;
 

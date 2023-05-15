@@ -26,7 +26,7 @@ using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsDIDTXTRecord : DnsResourceRecordData
+    public class DnsDIDTXTRecordData : DnsResourceRecordData
     {
         #region variables
 
@@ -38,21 +38,21 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDTXTRecord(string value)
+        public DnsDIDTXTRecordData(string value)
         {
             _didtxtTag = "";
             _didtxtDID = "";
             _didtxtTextData = value;
         }
 
-        public DnsDIDTXTRecord(string didtxtTag, string didtxtDID, string didtxtData)
+        public DnsDIDTXTRecordData(string didtxtTag, string didtxtDID, string didtxtData)
         {
             _didtxtTag = didtxtTag;
             _didtxtDID = didtxtDID;
             _didtxtTextData = didtxtData;
         }
 
-        public DnsDIDTXTRecord(Stream s)
+        public DnsDIDTXTRecordData(Stream s)
             : base(s)
         { }
 
@@ -105,7 +105,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (ReferenceEquals(this, obj))
                 return true;
 
-            DnsDIDTXTRecord other = obj as DnsDIDTXTRecord;
+            DnsDIDTXTRecordData other = obj as DnsDIDTXTRecordData;
             if (other == null)
                 return false;
 

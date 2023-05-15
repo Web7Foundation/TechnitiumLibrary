@@ -394,22 +394,22 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                     return new DnsDIDCTXRecordData(s);
 
                 case DnsResourceRecordType.DIDTXT:
-                    return new DnsDIDTXTRecord(s);
+                    return new DnsDIDTXTRecordData(s);
 
                 case DnsResourceRecordType.DIDSVC:
-                    return new DnsDIDSVCRecord(s);
+                    return new DnsDIDSVCRecordData(s);
 
                 case DnsResourceRecordType.DIDPUBK:
-                    return new DnsDIDPUBKRecord(s);
+                    return new DnsDIDPUBKRecordData(s);
 
                 case DnsResourceRecordType.DIDSUBSIG:
-                    return new DnsDIDSUBSIGRecord(s);
+                    return new DnsDIDSUBSIGRecordData(s);
 
                 case DnsResourceRecordType.DIDATHN:
-                    return new DnsDIDATHNRecord(s);
+                    return new DnsDIDATHNRecordData(s);
 
                 case DnsResourceRecordType.DIDEXTDAT:
-                    return new DnsDIDEXTDATRecord(s);
+                    return new DnsDIDEXTDATRecordData(s);
 
                 default:
                     return new DnsUnknownRecordData(s);

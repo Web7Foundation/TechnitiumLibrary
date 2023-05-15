@@ -26,7 +26,7 @@ using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsDIDSUBSIGRecord : DnsResourceRecordData
+    public class DnsDIDSUBSIGRecordData : DnsResourceRecordData
     {
         #region variables
 
@@ -38,21 +38,21 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDSUBSIGRecord(string value)
+        public DnsDIDSUBSIGRecordData(string value)
         {
             _didsubsigTag = "";
             _didsubsigDID = "";
             _didsubsigSigData = value;
         }
 
-        public DnsDIDSUBSIGRecord(string didsubsigTag, string didsubsigDID, string didsubsigData)
+        public DnsDIDSUBSIGRecordData(string didsubsigTag, string didsubsigDID, string didsubsigData)
         {
             _didsubsigTag = didsubsigTag;
             _didsubsigDID = didsubsigDID;
             _didsubsigSigData = didsubsigData;
         }
 
-        public DnsDIDSUBSIGRecord(Stream s)
+        public DnsDIDSUBSIGRecordData(Stream s)
             : base(s)
         { }
 
@@ -105,7 +105,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (ReferenceEquals(this, obj))
                 return true;
 
-            DnsDIDSUBSIGRecord other = obj as DnsDIDSUBSIGRecord;
+            DnsDIDSUBSIGRecordData other = obj as DnsDIDSUBSIGRecordData;
             if (other == null)
                 return false;
 
