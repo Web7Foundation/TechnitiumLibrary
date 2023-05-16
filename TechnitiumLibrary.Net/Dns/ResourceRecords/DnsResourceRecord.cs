@@ -20,25 +20,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
 
+    #region DID document components
+
     // https://www.w3.org/TR/did-core/#dfn-publickeyjwk plus examples
-    internal struct JSONKeyMap
+    public class JSONKeyMap
     {
-        string crv;
-        string e;
-        string n;
-        string x;
-        string y;
-        string kty;
-        string kid;
+        public string crv;
+        public string e;
+        public string n;
+        public string x;
+        public string y;
+        public string kty;
+        public string kid;
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is JSONKeyMap)) return false;
+
+            JSONKeyMap other = (JSONKeyMap)obj;
+
+            return (
+                this.crv == other.crv &&
+                this.e == other.e &&
+                this.n == other.n &&
+                this.x == other.x &&
+                this.y == other.y &&
+                this.kty == other.kty &&
+                this.kid == other.kid
+                );
+        }
     }
 
     // https://www.w3.org/TR/did-core/#service-properties
-    internal interface IServiceMapDID
+    internal class ServiceMapDID
     {
         public string Id { get; set; }
         public string Type_ { get; set; }
@@ -46,18 +69,215 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
     }
 
     // https://www.w3.org/TR/did-core/#verification-method-properties
-    internal interface IVerificationMethodMapDID
+    public class VerificationMethodMapDID
     {
         public string Id { get; set; }
         public string Comment { get; set; }
-        public string Type { get; set; }
+        public string Type_ { get; set; }
         public string Controller { get; set; }
         public string PublicKeyMultibase { get; set; }
-        public JSONKeyMap PublicKeyJWK { get; set; }
+        public JSONKeyMap PublicKeyJwk { get; set; }
         public string PublicKeyBase58 { get; set; }
         public string PrivateKeyBase58 { get; set; }
+
+        public void SerializeJson(Utf8JsonWriter jsonWriter, string objectName)
+        {
+            jsonWriter.WriteStartObject(objectName);
+
+            jsonWriter.WriteString("id", Id);
+            jsonWriter.WriteString("comment", Comment);
+            jsonWriter.WriteString("controller", Controller);
+            jsonWriter.WriteString("type_", Type_);
+            jsonWriter.WriteString("publicKeyMultibase", PublicKeyMultibase);
+
+            jsonWriter.WriteStartObject("publicKeyJwk");
+            jsonWriter.WriteString("crv", PublicKeyJwk.crv);
+            jsonWriter.WriteString("e", PublicKeyJwk.e);
+            jsonWriter.WriteString("n", PublicKeyJwk.n);
+            jsonWriter.WriteString("x", PublicKeyJwk.x);
+            jsonWriter.WriteString("y", PublicKeyJwk.y);
+            jsonWriter.WriteString("kty", PublicKeyJwk.kty);
+            jsonWriter.WriteString("kid", PublicKeyJwk.kid);
+            jsonWriter.WriteEndObject();
+
+            jsonWriter.WriteEndObject();
+        }
+
+        public void Read(Stream s)
+        {
+            #region read properties
+
+            int len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Id = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Comment = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Type_ = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Controller = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyMultibase = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyBase58 = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PrivateKeyBase58 = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            #endregion
+
+            #region read json key map properties
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.crv = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.e = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.n = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.x = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.y = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.kty = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.kid = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            #endregion
+        }
+
+        public void Write(Stream s)
+        {
+            #region write properties
+
+            s.WriteByte(Convert.ToByte(Id.Length));
+            if (Id.Length > 0) s.Write(Encoding.ASCII.GetBytes(Id));
+
+            s.WriteByte(Convert.ToByte(Comment.Length));
+            if (Comment.Length > 0) s.Write(Encoding.ASCII.GetBytes(Comment));
+
+            s.WriteByte(Convert.ToByte(Type_.Length));
+            if (Type_.Length > 0) s.Write(Encoding.ASCII.GetBytes(Type_));
+
+            s.WriteByte(Convert.ToByte(Controller.Length));
+            if (Controller.Length > 0) s.Write(Encoding.ASCII.GetBytes(Controller));
+
+            s.WriteByte(Convert.ToByte(PublicKeyMultibase.Length));
+            if (PublicKeyMultibase.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyMultibase));
+
+            s.WriteByte(Convert.ToByte(PublicKeyBase58.Length));
+            if (PublicKeyBase58.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyBase58));
+
+            s.WriteByte(Convert.ToByte(PrivateKeyBase58.Length));
+            if (PrivateKeyBase58.Length > 0) s.Write(Encoding.ASCII.GetBytes(PrivateKeyBase58));
+
+            #endregion
+
+            #region write json key map properties
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.crv.Length));
+            if (PublicKeyJwk.crv.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.crv));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.e.Length));
+            if (PublicKeyJwk.e.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.e));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.n.Length));
+            if (PublicKeyJwk.n.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.n));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.x.Length));
+            if (PublicKeyJwk.x.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.x));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.y.Length));
+            if (PublicKeyJwk.y.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.y));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.kty.Length));
+            if (PublicKeyJwk.kty.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.kty));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.kid.Length));
+            if (PublicKeyJwk.kid.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.kid));
+
+            #endregion
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+
+            hash.Add(Id);
+            hash.Add(Comment);
+            hash.Add(Type_);
+            hash.Add(Controller);
+            hash.Add(PublicKeyMultibase);
+            hash.Add(PublicKeyJwk);
+            hash.Add(PublicKeyBase58);
+            hash.Add(PrivateKeyBase58);
+
+            return hash.ToHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VerificationMethodMapDID other)
+            {
+                if (Id != other.Id)
+                    return false;
+
+                if (Comment != other.Comment)
+                    return false;
+
+                if (Type_ != other.Type_)
+                    return false;
+
+                if (Controller != other.Controller)
+                    return false;
+
+                if (PublicKeyMultibase != other.PublicKeyMultibase)
+                    return false;
+
+                if (PublicKeyBase58 != other.PublicKeyBase58)
+                    return false;
+
+                if (PrivateKeyBase58 != other.PrivateKeyBase58)
+                    return false;
+
+                if (PublicKeyJwk.Equals(other.PublicKeyJwk))
+                    return true;
+            }
+
+            return true;
+        }
     }
 
+    #endregion
 
     public enum DnsResourceRecordType : ushort
     {
@@ -174,7 +394,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         DIDCD = 65502,
         DIDSVC = 65503,
         DIDREL = 65504,
-        DIDTXT = 65504,
 
         #endregion
 
@@ -434,10 +653,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
                 #region DID RRs
 
-                // did RR types:
-                case DnsResourceRecordType.DIDTXT:
-                    return new DnsDIDTXTRecordData(s);
-
+                // single string value did RR types:
                 case DnsResourceRecordType.DIDID:
                     return new DnsDIDIDRecordData(s);
 
@@ -456,8 +672,31 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.DIDCTLR:
                     return new DnsDIDCTLRRecordData(s);
 
+                // verification method map did RR types
+                case DnsResourceRecordType.DIDVM:
+                    return new DnsDIDVMRecordData(s);
+
+                case DnsResourceRecordType.DIDAUTH:
+                    return new DnsDIDAUTHRecordData(s);
+
+                case DnsResourceRecordType.DIDAM:
+                    return new DnsDIDAMRecordData(s);
+
+                case DnsResourceRecordType.DIDKA:
+                    return new DnsDIDKARecordData(s);
+
+                case DnsResourceRecordType.DIDCI:
+                    return new DnsDIDCIRecordData(s);
+
+                case DnsResourceRecordType.DIDCD:
+                    return new DnsDIDCDRecordData(s);
+
+                // service map did RR types
                 case DnsResourceRecordType.DIDSVC:
                     return new DnsDIDSVCRecordData(s);
+
+                case DnsResourceRecordType.DIDREL:
+                    return new DnsDIDRELRecordData(s);
 
                 #endregion
 
