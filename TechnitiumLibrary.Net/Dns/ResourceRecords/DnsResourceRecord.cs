@@ -89,6 +89,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             jsonWriter.WriteString("controller", Controller);
             jsonWriter.WriteString("type_", Type_);
             jsonWriter.WriteString("publicKeyMultibase", PublicKeyMultibase);
+            jsonWriter.WriteString("publicKeyBase58", PublicKeyBase58);
+            jsonWriter.WriteString("privateKeyBase58", PrivateKeyBase58);
 
             jsonWriter.WriteStartObject("publicKeyJwk");
             jsonWriter.WriteString("crv", PublicKeyJwk.crv);
@@ -676,20 +678,20 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.DIDVM:
                     return new DnsDIDVMRecordData(s);
 
-                case DnsResourceRecordType.DIDAUTH:
-                    return new DnsDIDAUTHRecordData(s);
+                //case DnsResourceRecordType.DIDAUTH:
+                //    return new DnsDIDAUTHRecordData(s);
 
-                case DnsResourceRecordType.DIDAM:
-                    return new DnsDIDAMRecordData(s);
+                //case DnsResourceRecordType.DIDAM:
+                //    return new DnsDIDAMRecordData(s);
 
-                case DnsResourceRecordType.DIDKA:
-                    return new DnsDIDKARecordData(s);
+                //case DnsResourceRecordType.DIDKA:
+                //    return new DnsDIDKARecordData(s);
 
-                case DnsResourceRecordType.DIDCI:
-                    return new DnsDIDCIRecordData(s);
+                //case DnsResourceRecordType.DIDCI:
+                //    return new DnsDIDCIRecordData(s);
 
-                case DnsResourceRecordType.DIDCD:
-                    return new DnsDIDCDRecordData(s);
+                //case DnsResourceRecordType.DIDCD:
+                //    return new DnsDIDCDRecordData(s);
 
                 // service map did RR types
                 case DnsResourceRecordType.DIDSVC:
