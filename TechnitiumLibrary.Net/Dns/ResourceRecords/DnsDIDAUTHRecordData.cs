@@ -24,7 +24,7 @@ using System.Text.Json;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsDIDVMRecordData : DnsResourceRecordData
+    public class DnsDIDAUTHRecordData : DnsResourceRecordData
     {
         #region variables
 
@@ -34,12 +34,12 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDVMRecordData(VerificationMethodMapDID vmm)
+        public DnsDIDAUTHRecordData(VerificationMethodMapDID vmm)
         {
             _vmm = vmm; 
         }
 
-        public DnsDIDVMRecordData(Stream s)
+        public DnsDIDAUTHRecordData(Stream s)
             : base(s)
         { }
 
@@ -71,7 +71,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (ReferenceEquals(this, obj))
                 return true;
 
-            if (obj is DnsDIDVMRecordData other)
+            if (obj is DnsDIDAUTHRecordData other)
                 return _vmm.Equals(other._vmm);
 
             return false;
@@ -91,7 +91,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             jsonWriter.WriteStartObject();
 
-            _vmm.SerializeJson(jsonWriter, "verificationMethod");
+            _vmm.SerializeJson(jsonWriter, "authentication");
 
             jsonWriter.WriteEndObject();
         }
