@@ -30,17 +30,17 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
     {
         #region variables
 
-        string _didctxTag; // optional primary key
-        string _didctxData; // "value" field
+        string _context;
+
+        byte[] _rData;
 
         #endregion
 
         #region constructor
 
-        public DnsDIDCTXTRecordData(string tag, string value)
+        public DnsDIDCTXTRecordData(string didid)
         {
-            _didctxTag = tag;
-            _didctxData = value;
+            _context = didid; 
         }
 
         public DnsDIDCTXTRecordData(Stream s)
@@ -53,26 +53,57 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         protected override void ReadRecordData(Stream s)
         {
-            int len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didctxTag = "";
-            if (len > 0) _didctxTag = Encoding.ASCII.GetString(s.ReadBytes(len));
+            _rData = s.ReadBytes(_rdLength);
 
-            len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didctxData = "";
-            if (len > 0) _didctxData = Encoding.ASCII.GetString(s.ReadBytes(len));
+            using (MemoryStream mS = new MemoryStream(_rData))
+            {
+                int bytesRead = 0;
+                int length;
+
+                while (bytesRead < _rdLength)
+                {
+                    length = mS.ReadByte();
+                    if (length < 0)
+                        throw new EndOfStreamException();
+
+                    if (_context == null)
+                        _context = Encoding.ASCII.GetString(mS.ReadBytes(length));
+                    else
+                        _context += Encoding.ASCII.GetString(mS.ReadBytes(length));
+
+                    bytesRead += length + 1;
+                }
+            }
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool canonicalForm)
         {
-            s.WriteByte(Convert.ToByte(_didctxTag.Length));
-            if (_didctxTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxTag));
+            if (_rData is null)
+            {
+                using (MemoryStream mS = new MemoryStream())
+                {
+                    byte[] data = Encoding.ASCII.GetBytes(_context);
+                    int offset = 0;
+                    int length;
 
-            s.WriteByte(Convert.ToByte(_didctxData.Length));
-            if (_didctxData.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didctxData));        
+                    do
+                    {
+                        length = data.Length - offset;
+                        if (length > 255)
+                            length = 255;
+
+                        mS.WriteByte(Convert.ToByte(length));
+                        mS.Write(data, offset, length);
+
+                        offset += length;
+                    }
+                    while (offset < data.Length);
+
+                    _rData = mS.ToArray();
+                }
+            }
+
+            s.Write(_rData);
         }
 
         #endregion
@@ -81,46 +112,33 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
                 return false;
 
             if (ReferenceEquals(this, obj))
                 return true;
 
-            DnsDIDCTXTRecordData other = obj as DnsDIDCTXTRecordData;
-            if (other == null)
-                return false;
+            if (obj is DnsDIDCTXTRecordData other)
+                return _context.Equals(other._context);
 
-            if (this._didctxTag.Length > 0)
-            {
-                if (!this._didctxTag.Equals(other._didctxTag, StringComparison.OrdinalIgnoreCase))
-                    return false;
-            }
-            else
-            {
-                if (this._didctxData != other._didctxData)
-                    return false;
-            }
-
-            return true;
+            return false;
         }
 
         public override int GetHashCode()
         {
-            return _didctxData.GetHashCode();
+            return _context.GetHashCode();
         }
 
         public override string ToString()
         {
-            return DnsDatagram.EncodeCharacterString(_didctxTag + "=" + _didctxData);
+            return DnsDatagram.EncodeCharacterString(_context);
         }
 
         public override void SerializeTo(Utf8JsonWriter jsonWriter)
         {
             jsonWriter.WriteStartObject();
 
-            jsonWriter.WriteString("Tag", _didctxTag);
-            jsonWriter.WriteString("Data", _didctxData);
+            jsonWriter.WriteString("Context", _context);
 
             jsonWriter.WriteEndObject();
         }
@@ -129,20 +147,13 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region properties
 
-        public string Tag
-        { get { return _didctxTag; } }
-        public string Data
-        { get { return _didctxData; } }
+        public string Context
+        { get { return _context; } }
 
         public override ushort UncompressedLength
-        {
-            get
-            {
-                ushort dataLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didctxData.Length / 255d)) + _didctxData.Length);
-                return dataLength;
-            }
+        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_context.Length / 255d)) + _context.Length); } }
 
-            #endregion
-        }
+
+        #endregion
     }
 }
