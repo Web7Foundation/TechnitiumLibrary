@@ -141,6 +141,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
             #region read json key map properties
 
+            PublicKeyJwk = new JSONKeyMap();
+
             len = s.ReadByte();
             if (len < 0) throw new EndOfStreamException();
             PublicKeyJwk.crv = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
