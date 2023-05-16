@@ -23,6 +23,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
@@ -44,7 +45,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
-            if (!(obj is JSONKeyMap)) return false;
+            if (obj is not JSONKeyMap) return false;
 
             JSONKeyMap other = (JSONKeyMap)obj;
 
@@ -58,12 +59,28 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 this.kid == other.kid
                 );
         }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+
+            hash.Add(crv);
+            hash.Add(e);
+            hash.Add(n);
+            hash.Add(x);
+            hash.Add(y);
+            hash.Add(kty);
+            hash.Add(kid);
+
+            return hash.ToHashCode();
+        }
     }
 
     // https://www.w3.org/TR/did-core/#service-properties
     internal class ServiceMapDID
     {
         public string Id { get; set; }
+        public string Comment { get; set; }
         public string Type_ { get; set; }
         public string ServiceEndpoint { get; set; }
     }
@@ -273,8 +290,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 if (PrivateKeyBase58 != other.PrivateKeyBase58)
                     return false;
 
-                if (PublicKeyJwk.Equals(other.PublicKeyJwk))
-                    return true;
+                if (!PublicKeyJwk.Equals(other.PublicKeyJwk))
+                    return false;
             }
 
             return true;
@@ -680,20 +697,20 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.DIDVM:
                     return new DnsDIDVMRecordData(s);
 
-                //case DnsResourceRecordType.DIDAUTH:
-                //    return new DnsDIDAUTHRecordData(s);
+                case DnsResourceRecordType.DIDAUTH:
+                    return new DnsDIDAUTHRecordData(s);
 
-                //case DnsResourceRecordType.DIDAM:
-                //    return new DnsDIDAMRecordData(s);
+                case DnsResourceRecordType.DIDAM:
+                    return new DnsDIDAMRecordData(s);
 
-                //case DnsResourceRecordType.DIDKA:
-                //    return new DnsDIDKARecordData(s);
+                case DnsResourceRecordType.DIDKA:
+                    return new DnsDIDKARecordData(s);
 
-                //case DnsResourceRecordType.DIDCI:
-                //    return new DnsDIDCIRecordData(s);
+                case DnsResourceRecordType.DIDCI:
+                    return new DnsDIDCIRecordData(s);
 
-                //case DnsResourceRecordType.DIDCD:
-                //    return new DnsDIDCDRecordData(s);
+                case DnsResourceRecordType.DIDCD:
+                    return new DnsDIDCDRecordData(s);
 
                 // service map did RR types
                 case DnsResourceRecordType.DIDSVC:
