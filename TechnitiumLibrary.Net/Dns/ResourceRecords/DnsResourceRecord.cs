@@ -353,6 +353,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             switch (type)
             {
+                #region DNS RRs
+
                 case DnsResourceRecordType.A:
                     return new DnsARecordData(s);
 
@@ -428,30 +430,36 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.APP:
                     return new DnsApplicationRecordData(s);
 
+                #endregion
+
+                #region DID RRs
+
                 // did RR types:
+                case DnsResourceRecordType.DIDTXT:
+                    return new DnsDIDTXTRecordData(s);
+
                 case DnsResourceRecordType.DIDID:
                     return new DnsDIDIDRecordData(s);
+
+                case DnsResourceRecordType.DIDPURP:
+                    return new DnsDIDPURPRecordData(s);
+
+                case DnsResourceRecordType.DIDCOMM:
+                    return new DnsDIDCOMMRecordData(s);
 
                 case DnsResourceRecordType.DIDCTXT:
                     return new DnsDIDCTXTRecordData(s);
 
-                case DnsResourceRecordType.DIDTXT:
-                    return new DnsDIDTXTRecordData(s);
+                case DnsResourceRecordType.DIDAKA:
+                    return new DnsDIDAKARecordData(s);
+
+                case DnsResourceRecordType.DIDCTLR:
+                    return new DnsDIDCTLRRecordData(s);
 
                 case DnsResourceRecordType.DIDSVC:
                     return new DnsDIDSVCRecordData(s);
 
-                case DnsResourceRecordType.DIDPUBK:
-                    return new DnsDIDPUBKRecordData(s);
-
-                case DnsResourceRecordType.DIDSUBSIG:
-                    return new DnsDIDSUBSIGRecordData(s);
-
-                case DnsResourceRecordType.DIDATHN:
-                    return new DnsDIDATHNRecordData(s);
-
-                case DnsResourceRecordType.DIDEXTDAT:
-                    return new DnsDIDEXTDATRecordData(s);
+                #endregion
 
                 default:
                     return new DnsUnknownRecordData(s);
