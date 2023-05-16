@@ -107,7 +107,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         public VerificationMethodMapDID VerificationMethodMap { get => _vmm; set => _vmm = value; }
 
         public override ushort UncompressedLength
-        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_comment.Length / 255d)) + _comment.Length); } }
+        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_vmm.ToString().Length / 255d)) + _vmm.ToString().Length); } }
 
         #endregion
     }
