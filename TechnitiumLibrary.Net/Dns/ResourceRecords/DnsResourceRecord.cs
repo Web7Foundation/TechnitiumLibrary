@@ -20,10 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
