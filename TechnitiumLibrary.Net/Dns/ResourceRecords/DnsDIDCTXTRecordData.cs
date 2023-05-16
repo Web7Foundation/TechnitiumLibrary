@@ -38,9 +38,9 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDCTXTRecordData(string didid)
+        public DnsDIDCTXTRecordData(string value)
         {
-            _context = didid; 
+            _context = value; 
         }
 
         public DnsDIDCTXTRecordData(Stream s)
