@@ -24,8 +24,45 @@ using System.Text.Json;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
+
+    // https://www.w3.org/TR/did-core/#dfn-publickeyjwk plus examples
+    internal struct JSONKeyMap
+    {
+        string crv;
+        string e;
+        string n;
+        string x;
+        string y;
+        string kty;
+        string kid;
+    }
+
+    // https://www.w3.org/TR/did-core/#service-properties
+    internal interface IServiceMapDID
+    {
+        public string Id { get; set; }
+        public string Type_ { get; set; }
+        public string ServiceEndpoint { get; set; }
+    }
+
+    // https://www.w3.org/TR/did-core/#verification-method-properties
+    internal interface IVerificationMethodMapDID
+    {
+        public string Id { get; set; }
+        public string Comment { get; set; }
+        public string Type { get; set; }
+        public string Controller { get; set; }
+        public string PublicKeyMultibase { get; set; }
+        public JSONKeyMap PublicKeyJWK { get; set; }
+        public string PublicKeyBase58 { get; set; }
+        public string PrivateKeyBase58 { get; set; }
+    }
+
+
     public enum DnsResourceRecordType : ushort
     {
+        #region DNS
+
         Unknown = 0,
         A = 1,
         NS = 2,
@@ -118,23 +155,28 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         FWD = 65281, //private use - conditional forwarder
         APP = 65282, //private use - application
 
-        //private use - DID resource record types + UUBLAddress
+        #endregion
+
+        #region DID
+
+        //private use - DID resource record types
         DIDID = 65488,
-        DIDCTX = 65489,
-        DIDSVC = 65490,
-        DIDFFD3 = 65491,
-        DIDPUBK = 65492,
-        DIDSUBSIG = 65493,
-        DIDFFD6 = 65494,
-        DIDFFD7 = 65495,
-        DIDATHN = 65496,
-        DIDFFD9 = 65497,
-        DIDFFDA = 65498,
-        DIDFFDB = 65499,
-        DIDTXT = 65500,
-        DIDEXTDAT = 65501,
-        DIDFRAG_OBSOLETE = 65502,
-        DIDDOC = 65503,
+        DIDPURP = 65489,
+        DIDCOMM = 65490,
+        DIDCTXT = 65491,
+        DIDAKA = 65492,
+        DIDCTLR = 65493,
+        DIDVM = 65494,
+        DIDAUTH = 65495,
+        DIDAM = 65496,
+        DIDKA = 65500,
+        DIDCI = 65501,
+        DIDCD = 65502,
+        DIDSVC = 65503,
+        DIDREL = 65504,
+        DIDTXT = 65504,
+
+        #endregion
 
         UUBLAddress = 65472,
     }
@@ -390,8 +432,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 case DnsResourceRecordType.DIDID:
                     return new DnsDIDIDRecordData(s);
 
-                case DnsResourceRecordType.DIDCTX:
-                    return new DnsDIDCTXRecordData(s);
+                case DnsResourceRecordType.DIDCTXT:
+                    return new DnsDIDCTXTRecordData(s);
 
                 case DnsResourceRecordType.DIDTXT:
                     return new DnsDIDTXTRecordData(s);
