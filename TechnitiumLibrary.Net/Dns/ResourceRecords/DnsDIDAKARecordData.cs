@@ -26,11 +26,11 @@ using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsDIDIDRecordData : DnsResourceRecordData
+    public class DnsDIDAKARecordData : DnsResourceRecordData
     {
         #region variables
 
-        string _didid;
+        string _alsoKnownAs;
 
         byte[] _rData;
 
@@ -38,12 +38,12 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDIDRecordData(string didid)
+        public DnsDIDAKARecordData(string value)
         {
-            _didid = didid; 
+            _alsoKnownAs = value; 
         }
 
-        public DnsDIDIDRecordData(Stream s)
+        public DnsDIDAKARecordData(Stream s)
             : base(s)
         { }
 
@@ -66,10 +66,10 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                     if (length < 0)
                         throw new EndOfStreamException();
 
-                    if (_didid == null)
-                        _didid = Encoding.ASCII.GetString(mS.ReadBytes(length));
+                    if (_alsoKnownAs == null)
+                        _alsoKnownAs = Encoding.ASCII.GetString(mS.ReadBytes(length));
                     else
-                        _didid += Encoding.ASCII.GetString(mS.ReadBytes(length));
+                        _alsoKnownAs += Encoding.ASCII.GetString(mS.ReadBytes(length));
 
                     bytesRead += length + 1;
                 }
@@ -82,7 +82,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             {
                 using (MemoryStream mS = new MemoryStream())
                 {
-                    byte[] data = Encoding.ASCII.GetBytes(_didid);
+                    byte[] data = Encoding.ASCII.GetBytes(_alsoKnownAs);
                     int offset = 0;
                     int length;
 
@@ -118,27 +118,27 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (ReferenceEquals(this, obj))
                 return true;
 
-            if (obj is DnsDIDIDRecordData other)
-                return _didid.Equals(other._didid);
+            if (obj is DnsDIDAKARecordData other)
+                return _alsoKnownAs.Equals(other._alsoKnownAs);
 
             return false;
         }
 
         public override int GetHashCode()
         {
-            return _didid.GetHashCode();
+            return _alsoKnownAs.GetHashCode();
         }
 
         public override string ToString()
         {
-            return DnsDatagram.EncodeCharacterString(_didid);
+            return DnsDatagram.EncodeCharacterString(_alsoKnownAs);
         }
 
         public override void SerializeTo(Utf8JsonWriter jsonWriter)
         {
             jsonWriter.WriteStartObject();
 
-            jsonWriter.WriteString("DID", _didid);
+            jsonWriter.WriteString("AlsoKnownAs", _alsoKnownAs);
 
             jsonWriter.WriteEndObject();
         }
@@ -147,11 +147,11 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region properties
 
-        public string DID
-        { get { return _didid; } }
+        public string AlsoKnownAs
+        { get { return _alsoKnownAs; } }
 
         public override ushort UncompressedLength
-        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didid.Length / 255d)) + _didid.Length); } }
+        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_alsoKnownAs.Length / 255d)) + _alsoKnownAs.Length); } }
 
 
         #endregion

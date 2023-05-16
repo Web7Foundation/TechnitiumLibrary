@@ -26,11 +26,11 @@ using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsDIDIDRecordData : DnsResourceRecordData
+    public class DnsDIDPURPRecordData : DnsResourceRecordData
     {
         #region variables
 
-        string _didid;
+        string _purpose;
 
         byte[] _rData;
 
@@ -38,12 +38,12 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region constructor
 
-        public DnsDIDIDRecordData(string didid)
+        public DnsDIDPURPRecordData(string value)
         {
-            _didid = didid; 
+            _purpose = value; 
         }
 
-        public DnsDIDIDRecordData(Stream s)
+        public DnsDIDPURPRecordData(Stream s)
             : base(s)
         { }
 
@@ -66,10 +66,10 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                     if (length < 0)
                         throw new EndOfStreamException();
 
-                    if (_didid == null)
-                        _didid = Encoding.ASCII.GetString(mS.ReadBytes(length));
+                    if (_purpose == null)
+                        _purpose = Encoding.ASCII.GetString(mS.ReadBytes(length));
                     else
-                        _didid += Encoding.ASCII.GetString(mS.ReadBytes(length));
+                        _purpose += Encoding.ASCII.GetString(mS.ReadBytes(length));
 
                     bytesRead += length + 1;
                 }
@@ -82,7 +82,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             {
                 using (MemoryStream mS = new MemoryStream())
                 {
-                    byte[] data = Encoding.ASCII.GetBytes(_didid);
+                    byte[] data = Encoding.ASCII.GetBytes(_purpose);
                     int offset = 0;
                     int length;
 
@@ -118,27 +118,27 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             if (ReferenceEquals(this, obj))
                 return true;
 
-            if (obj is DnsDIDIDRecordData other)
-                return _didid.Equals(other._didid);
+            if (obj is DnsDIDPURPRecordData other)
+                return _purpose.Equals(other._purpose);
 
             return false;
         }
 
         public override int GetHashCode()
         {
-            return _didid.GetHashCode();
+            return _purpose.GetHashCode();
         }
 
         public override string ToString()
         {
-            return DnsDatagram.EncodeCharacterString(_didid);
+            return DnsDatagram.EncodeCharacterString(_purpose);
         }
 
         public override void SerializeTo(Utf8JsonWriter jsonWriter)
         {
             jsonWriter.WriteStartObject();
 
-            jsonWriter.WriteString("DID", _didid);
+            jsonWriter.WriteString("Purpose", _purpose);
 
             jsonWriter.WriteEndObject();
         }
@@ -147,11 +147,11 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region properties
 
-        public string DID
-        { get { return _didid; } }
+        public string Purpose
+        { get { return _purpose; } }
 
         public override ushort UncompressedLength
-        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didid.Length / 255d)) + _didid.Length); } }
+        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_purpose.Length / 255d)) + _purpose.Length); } }
 
 
         #endregion
