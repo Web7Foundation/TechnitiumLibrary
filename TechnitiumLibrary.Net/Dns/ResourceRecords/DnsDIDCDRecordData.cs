@@ -28,13 +28,13 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
     {
         #region variables
 
-        VerificationMethodMapDID _vmm;
+        VerificationMethodMap _vmm;
 
         #endregion
 
         #region constructor
 
-        public DnsDIDCDRecordData(VerificationMethodMapDID vmm)
+        public DnsDIDCDRecordData(VerificationMethodMap vmm)
         {
             _vmm = vmm; 
         }
@@ -49,7 +49,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         protected override void ReadRecordData(Stream s)
         {
-            _vmm = new VerificationMethodMapDID();
+            _vmm = new VerificationMethodMap();
 
             _vmm.Read(s);
         }
@@ -100,7 +100,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         #region properties
 
-        public VerificationMethodMapDID VerificationMethodMap { get => _vmm; set => _vmm = value; }
+        public VerificationMethodMap VerificationMethodMap { get => _vmm; set => _vmm = value; }
 
         public override ushort UncompressedLength
         { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_vmm.ToString().Length / 255d)) + _vmm.ToString().Length); } }
