@@ -20,9 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.Json;
-using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
@@ -30,38 +28,20 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
     {
         #region variables
 
-        string _didsvcTag; // optional primary key
-        string _didsvcDID; // optional secondary key
-        string _didsvcType;
-        string _didsvcDescription;
-        string _didsvcServiceEndpointUrl; // "value" field
+        ServiceMap _sm;
 
         #endregion
 
         #region constructor
 
-        public DnsDIDSVCRecordData(string value)
+        public DnsDIDSVCRecordData(ServiceMap sm)
         {
-            _didsvcTag = ""; 
-            _didsvcDID = "";
-            _didsvcType = "";
-            _didsvcDescription = "";
-            _didsvcServiceEndpointUrl = value;
+            _sm = sm;
         }
 
         public DnsDIDSVCRecordData(Stream s)
             : base(s)
         { }
-
-        public DnsDIDSVCRecordData(string didsvcTag, string didsvcDID, string didsvcType, string didsvcDescription, string didsvcServiceEndpointUrl)
-        {
-            _didsvcTag = didsvcTag;
-            _didsvcDID = didsvcDID;
-            _didsvcType = didsvcType;
-            _didsvcDescription = didsvcDescription;
-            _didsvcServiceEndpointUrl = didsvcServiceEndpointUrl;
-
-        }
 
         #endregion
 
@@ -69,49 +49,14 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         protected override void ReadRecordData(Stream s)
         {
-            int len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didsvcTag = "";
-            if (len > 0) _didsvcTag = Encoding.ASCII.GetString(s.ReadBytes(len));
+            _sm = new ServiceMap();
 
-            len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didsvcDID = "";
-            if (len > 0) _didsvcDID = Encoding.ASCII.GetString(s.ReadBytes(len));
-
-            len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didsvcType = "";
-            if (len > 0) _didsvcType = Encoding.ASCII.GetString(s.ReadBytes(len));
-
-           len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didsvcDescription = "";
-            if (len > 0) _didsvcDescription = Encoding.ASCII.GetString(s.ReadBytes(len));
-
-            len = s.ReadByte();
-            if (len < 0)
-                throw new EndOfStreamException();
-            _didsvcServiceEndpointUrl = "";
-            if (len > 0) _didsvcServiceEndpointUrl = Encoding.ASCII.GetString(s.ReadBytes(len));
+            _sm.Read(s);
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries, bool canonicalForm)
         {
-            s.WriteByte(Convert.ToByte(_didsvcTag.Length));
-            if (_didsvcTag.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didsvcTag));
-            s.WriteByte(Convert.ToByte(_didsvcDID.Length));
-            if (_didsvcDID.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didsvcDID));
-            s.WriteByte(Convert.ToByte(_didsvcType.Length));
-            if (_didsvcType.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didsvcType));
-            s.WriteByte(Convert.ToByte(_didsvcDescription.Length));
-            if (_didsvcDescription.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didsvcDescription));
-            s.WriteByte(Convert.ToByte(_didsvcServiceEndpointUrl.Length));
-            if (_didsvcServiceEndpointUrl.Length > 0) s.Write(Encoding.ASCII.GetBytes(_didsvcServiceEndpointUrl));
+            _sm.Write(s);
         }
 
         #endregion
@@ -120,87 +65,45 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
                 return false;
 
             if (ReferenceEquals(this, obj))
                 return true;
 
-            DnsDIDSVCRecordData other = obj as DnsDIDSVCRecordData;
-            if (other == null)
-                return false;
+            if (obj is DnsDIDSVCRecordData other)
+                return _sm.Equals(other._sm);
 
-            if (this._didsvcTag.Length > 0)
-            {
-                if (!this._didsvcTag.Equals(other._didsvcTag, StringComparison.OrdinalIgnoreCase))
-                    return false;
-            }
-            else if (this._didsvcDID.Length > 0)
-            {
-                if (this._didsvcDID != other._didsvcDID)
-                    return false;
-            }
-            else
-            {
-                if ((this._didsvcType.Length > 0) && (this._didsvcType != other._didsvcType))
-                    return false;
-                if (this._didsvcServiceEndpointUrl != other._didsvcServiceEndpointUrl)
-                    return false;
-            }
-
-            return true;
+            return false;
         }
 
         public override int GetHashCode()
         {
-            return _didsvcServiceEndpointUrl.GetHashCode();
+            return _sm.GetHashCode();
         }
 
         public override string ToString()
         {
-            return DnsDatagram.EncodeCharacterString(_didsvcTag + ":" + _didsvcDID + "=" + _didsvcServiceEndpointUrl
-                + "=" + _didsvcType + "," + _didsvcDescription + "," + _didsvcServiceEndpointUrl);
+            return DnsDatagram.EncodeCharacterString(_sm.ToString());
         }
 
         public override void SerializeTo(Utf8JsonWriter jsonWriter)
         {
             jsonWriter.WriteStartObject();
 
-            jsonWriter.WriteString("Tag", _didsvcTag);
-            jsonWriter.WriteString("DID", _didsvcDID);
-            jsonWriter.WriteString("Type", _didsvcType);
-            jsonWriter.WriteString("Description", _didsvcDescription);
-            jsonWriter.WriteString("ServiceEndpointUrl", _didsvcServiceEndpointUrl);
+            _sm.SerializeJson(jsonWriter);
 
             jsonWriter.WriteEndObject();
         }
+
         #endregion
 
         #region properties
 
-        public string Tag
-        { get { return _didsvcTag; } }
-        public string DID
-        { get { return _didsvcDID; } }
-        public string Type
-        { get { return _didsvcType; } }
-        public string Description
-        { get { return _didsvcDescription; } }
-        public string ServiceEndpointUrl
-        { get { return _didsvcServiceEndpointUrl; } }
+        public ServiceMap ServiceMap { get => _sm; set => _sm = value; }
 
-        public override ushort UncompressedLength 
-        {
-            get
-            {
-                ushort tagLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didsvcTag.Length / 255d)) + _didsvcTag.Length);
-                ushort didLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didsvcDID.Length / 255d)) + _didsvcDID.Length);
-                ushort typeLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didsvcType.Length / 255d)) + _didsvcType.Length);
-                ushort descLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didsvcDescription.Length / 255d)) + _didsvcDescription.Length);
-                ushort serviceEpLength = Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_didsvcServiceEndpointUrl.Length / 255d)) + _didsvcServiceEndpointUrl.Length);
-                return (ushort)(tagLength + didLength + typeLength + descLength + serviceEpLength);
-            }
-        }
+        public override ushort UncompressedLength
+        { get { return Convert.ToUInt16(Convert.ToInt32(Math.Ceiling(_sm.ToString().Length / 255d)) + _sm.ToString().Length); } }
 
         #endregion
     }
