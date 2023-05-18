@@ -75,17 +75,114 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
     }
 
     // https://www.w3.org/TR/did-core/#service-properties
-    internal class ServiceMapDID
+    public class ServiceMap
     {
+        #region properties
+
         public string Id { get; set; }
         public string Comment { get; set; }
         public string Type_ { get; set; }
         public string ServiceEndpoint { get; set; }
+
+        #endregion
+
+        #region internal
+
+        internal void Read(Stream s)
+        {
+            int len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Id = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Comment = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Type_ = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            ServiceEndpoint = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+        }
+
+        internal void Write(Stream s)
+        {
+            s.WriteByte(Convert.ToByte(Id.Length));
+            if (Id.Length > 0) s.Write(Encoding.ASCII.GetBytes(Id));
+
+            s.WriteByte(Convert.ToByte(Comment.Length));
+            if (Comment.Length > 0) s.Write(Encoding.ASCII.GetBytes(Comment));
+
+            s.WriteByte(Convert.ToByte(Type_.Length));
+            if (Type_.Length > 0) s.Write(Encoding.ASCII.GetBytes(Type_));
+
+            s.WriteByte(Convert.ToByte(ServiceEndpoint.Length));
+            if (ServiceEndpoint.Length > 0) s.Write(Encoding.ASCII.GetBytes(ServiceEndpoint));
+        }
+
+        #endregion
+
+        #region public
+
+        public void SerializeJson(Utf8JsonWriter jsonWriter)
+        {
+            jsonWriter.WriteStartObject("serviceMap");
+
+            jsonWriter.WriteString("id", Id);
+            jsonWriter.WriteString("comment", Comment);
+            jsonWriter.WriteString("type_", Type_);
+            jsonWriter.WriteString("serviceEndpoint", ServiceEndpoint);
+
+            jsonWriter.WriteEndObject();
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+
+            hash.Add(Id);
+            hash.Add(Comment);
+            hash.Add(Type_);
+            hash.Add(ServiceEndpoint);
+
+            return hash.ToHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ServiceMap other)
+            {
+                if (Id != other.Id)
+                    return false;
+
+                if (Comment != other.Comment)
+                    return false;
+
+                if (Type_ != other.Type_)
+                    return false;
+
+                if (ServiceEndpoint != other.ServiceEndpoint)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        #endregion
     }
 
     // https://www.w3.org/TR/did-core/#verification-method-properties
-    public class VerificationMethodMapDID
+    public class VerificationMethodMap
     {
+        #region properties
+
         public string Id { get; set; }
         public string Comment { get; set; }
         public string Type_ { get; set; }
@@ -95,35 +192,12 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         public string PublicKeyBase58 { get; set; }
         public string PrivateKeyBase58 { get; set; }
 
-        public void SerializeJson(Utf8JsonWriter jsonWriter, string objectName)
+        #endregion
+
+        #region internal
+
+        internal void Read(Stream s)
         {
-            jsonWriter.WriteStartObject(objectName);
-
-            jsonWriter.WriteString("id", Id);
-            jsonWriter.WriteString("comment", Comment);
-            jsonWriter.WriteString("controller", Controller);
-            jsonWriter.WriteString("type_", Type_);
-            jsonWriter.WriteString("publicKeyMultibase", PublicKeyMultibase);
-            jsonWriter.WriteString("publicKeyBase58", PublicKeyBase58);
-            jsonWriter.WriteString("privateKeyBase58", PrivateKeyBase58);
-
-            jsonWriter.WriteStartObject("publicKeyJwk");
-            jsonWriter.WriteString("crv", PublicKeyJwk.crv);
-            jsonWriter.WriteString("e", PublicKeyJwk.e);
-            jsonWriter.WriteString("n", PublicKeyJwk.n);
-            jsonWriter.WriteString("x", PublicKeyJwk.x);
-            jsonWriter.WriteString("y", PublicKeyJwk.y);
-            jsonWriter.WriteString("kty", PublicKeyJwk.kty);
-            jsonWriter.WriteString("kid", PublicKeyJwk.kid);
-            jsonWriter.WriteEndObject();
-
-            jsonWriter.WriteEndObject();
-        }
-
-        public void Read(Stream s)
-        {
-            #region read properties
-
             int len = s.ReadByte();
             if (len < 0) throw new EndOfStreamException();
             Id = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
@@ -151,10 +225,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             len = s.ReadByte();
             if (len < 0) throw new EndOfStreamException();
             PrivateKeyBase58 = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
-
-            #endregion
-
-            #region read json key map properties
 
             PublicKeyJwk = new JSONKeyMap();
 
@@ -185,14 +255,10 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             len = s.ReadByte();
             if (len < 0) throw new EndOfStreamException();
             PublicKeyJwk.kid = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
-
-            #endregion
         }
 
-        public void Write(Stream s)
+        internal void Write(Stream s)
         {
-            #region write properties
-
             s.WriteByte(Convert.ToByte(Id.Length));
             if (Id.Length > 0) s.Write(Encoding.ASCII.GetBytes(Id));
 
@@ -214,10 +280,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             s.WriteByte(Convert.ToByte(PrivateKeyBase58.Length));
             if (PrivateKeyBase58.Length > 0) s.Write(Encoding.ASCII.GetBytes(PrivateKeyBase58));
 
-            #endregion
-
-            #region write json key map properties
-
+            // PublicKeyJwk properties:
             s.WriteByte(Convert.ToByte(PublicKeyJwk.crv.Length));
             if (PublicKeyJwk.crv.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.crv));
 
@@ -238,8 +301,35 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
             s.WriteByte(Convert.ToByte(PublicKeyJwk.kid.Length));
             if (PublicKeyJwk.kid.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.kid));
+        }
 
-            #endregion
+        #endregion
+
+        #region public
+
+        public void SerializeJson(Utf8JsonWriter jsonWriter)
+        {
+            jsonWriter.WriteStartObject("verificationMethodMap");
+
+            jsonWriter.WriteString("id", Id);
+            jsonWriter.WriteString("comment", Comment);
+            jsonWriter.WriteString("controller", Controller);
+            jsonWriter.WriteString("type_", Type_);
+            jsonWriter.WriteString("publicKeyMultibase", PublicKeyMultibase);
+            jsonWriter.WriteString("publicKeyBase58", PublicKeyBase58);
+            jsonWriter.WriteString("privateKeyBase58", PrivateKeyBase58);
+
+            jsonWriter.WriteStartObject("publicKeyJwk");
+            jsonWriter.WriteString("crv", PublicKeyJwk.crv);
+            jsonWriter.WriteString("e", PublicKeyJwk.e);
+            jsonWriter.WriteString("n", PublicKeyJwk.n);
+            jsonWriter.WriteString("x", PublicKeyJwk.x);
+            jsonWriter.WriteString("y", PublicKeyJwk.y);
+            jsonWriter.WriteString("kty", PublicKeyJwk.kty);
+            jsonWriter.WriteString("kid", PublicKeyJwk.kid);
+            jsonWriter.WriteEndObject();
+
+            jsonWriter.WriteEndObject();
         }
 
         public override string ToString()
@@ -265,7 +355,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
         public override bool Equals(object obj)
         {
-            if (obj is VerificationMethodMapDID other)
+            if (obj is VerificationMethodMap other)
             {
                 if (Id != other.Id)
                     return false;
@@ -294,6 +384,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
             return true;
         }
+
+        #endregion
     }
 
     #endregion
