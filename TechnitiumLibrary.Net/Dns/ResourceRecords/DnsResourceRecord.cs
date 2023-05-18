@@ -20,12 +20,380 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
+using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
+
+    #region DID document components
+
+    // https://www.w3.org/TR/did-core/#dfn-publickeyjwk plus examples
+    public class JSONKeyMap
+    {
+        public string crv;
+        public string e;
+        public string n;
+        public string x;
+        public string y;
+        public string kty;
+        public string kid;
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (obj is not JSONKeyMap) return false;
+
+            JSONKeyMap other = (JSONKeyMap)obj;
+
+            return (
+                this.crv == other.crv &&
+                this.e == other.e &&
+                this.n == other.n &&
+                this.x == other.x &&
+                this.y == other.y &&
+                this.kty == other.kty &&
+                this.kid == other.kid
+                );
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+
+            hash.Add(crv);
+            hash.Add(e);
+            hash.Add(n);
+            hash.Add(x);
+            hash.Add(y);
+            hash.Add(kty);
+            hash.Add(kid);
+
+            return hash.ToHashCode();
+        }
+    }
+
+    // https://www.w3.org/TR/did-core/#service-properties
+    public class ServiceMap
+    {
+        #region properties
+
+        public string Id { get; set; }
+        public string Comment { get; set; }
+        public string Type_ { get; set; }
+        public string ServiceEndpoint { get; set; }
+
+        #endregion
+
+        #region internal
+
+        internal void Read(Stream s)
+        {
+            int len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Id = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Comment = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Type_ = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            ServiceEndpoint = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+        }
+
+        internal void Write(Stream s)
+        {
+            s.WriteByte(Convert.ToByte(Id.Length));
+            if (Id.Length > 0) s.Write(Encoding.ASCII.GetBytes(Id));
+
+            s.WriteByte(Convert.ToByte(Comment.Length));
+            if (Comment.Length > 0) s.Write(Encoding.ASCII.GetBytes(Comment));
+
+            s.WriteByte(Convert.ToByte(Type_.Length));
+            if (Type_.Length > 0) s.Write(Encoding.ASCII.GetBytes(Type_));
+
+            s.WriteByte(Convert.ToByte(ServiceEndpoint.Length));
+            if (ServiceEndpoint.Length > 0) s.Write(Encoding.ASCII.GetBytes(ServiceEndpoint));
+        }
+
+        #endregion
+
+        #region public
+
+        public void SerializeJson(Utf8JsonWriter jsonWriter)
+        {
+            jsonWriter.WriteStartObject("serviceMap");
+
+            jsonWriter.WriteString("id", Id);
+            jsonWriter.WriteString("comment", Comment);
+            jsonWriter.WriteString("type_", Type_);
+            jsonWriter.WriteString("serviceEndpoint", ServiceEndpoint);
+
+            jsonWriter.WriteEndObject();
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+
+            hash.Add(Id);
+            hash.Add(Comment);
+            hash.Add(Type_);
+            hash.Add(ServiceEndpoint);
+
+            return hash.ToHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ServiceMap other)
+            {
+                if (Id != other.Id)
+                    return false;
+
+                if (Comment != other.Comment)
+                    return false;
+
+                if (Type_ != other.Type_)
+                    return false;
+
+                if (ServiceEndpoint != other.ServiceEndpoint)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        #endregion
+    }
+
+    // https://www.w3.org/TR/did-core/#verification-method-properties
+    public class VerificationMethodMap
+    {
+        #region properties
+
+        public string Id { get; set; }
+        public string Comment { get; set; }
+        public string Type_ { get; set; }
+        public string Controller { get; set; }
+        public string PublicKeyMultibase { get; set; }
+        public JSONKeyMap PublicKeyJwk { get; set; }
+        public string PublicKeyBase58 { get; set; }
+        public string PrivateKeyBase58 { get; set; }
+
+        #endregion
+
+        #region internal
+
+        internal void Read(Stream s)
+        {
+            int len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Id = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Comment = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Type_ = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            Controller = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyMultibase = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyBase58 = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PrivateKeyBase58 = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            PublicKeyJwk = new JSONKeyMap();
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.crv = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.e = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.n = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.x = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.y = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.kty = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+
+            len = s.ReadByte();
+            if (len < 0) throw new EndOfStreamException();
+            PublicKeyJwk.kid = len > 0 ? Encoding.ASCII.GetString(s.ReadBytes(len)) : string.Empty;
+        }
+
+        internal void Write(Stream s)
+        {
+            s.WriteByte(Convert.ToByte(Id.Length));
+            if (Id.Length > 0) s.Write(Encoding.ASCII.GetBytes(Id));
+
+            s.WriteByte(Convert.ToByte(Comment.Length));
+            if (Comment.Length > 0) s.Write(Encoding.ASCII.GetBytes(Comment));
+
+            s.WriteByte(Convert.ToByte(Type_.Length));
+            if (Type_.Length > 0) s.Write(Encoding.ASCII.GetBytes(Type_));
+
+            s.WriteByte(Convert.ToByte(Controller.Length));
+            if (Controller.Length > 0) s.Write(Encoding.ASCII.GetBytes(Controller));
+
+            s.WriteByte(Convert.ToByte(PublicKeyMultibase.Length));
+            if (PublicKeyMultibase.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyMultibase));
+
+            s.WriteByte(Convert.ToByte(PublicKeyBase58.Length));
+            if (PublicKeyBase58.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyBase58));
+
+            s.WriteByte(Convert.ToByte(PrivateKeyBase58.Length));
+            if (PrivateKeyBase58.Length > 0) s.Write(Encoding.ASCII.GetBytes(PrivateKeyBase58));
+
+            // PublicKeyJwk properties:
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.crv.Length));
+            if (PublicKeyJwk.crv.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.crv));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.e.Length));
+            if (PublicKeyJwk.e.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.e));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.n.Length));
+            if (PublicKeyJwk.n.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.n));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.x.Length));
+            if (PublicKeyJwk.x.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.x));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.y.Length));
+            if (PublicKeyJwk.y.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.y));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.kty.Length));
+            if (PublicKeyJwk.kty.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.kty));
+
+            s.WriteByte(Convert.ToByte(PublicKeyJwk.kid.Length));
+            if (PublicKeyJwk.kid.Length > 0) s.Write(Encoding.ASCII.GetBytes(PublicKeyJwk.kid));
+        }
+
+        #endregion
+
+        #region public
+
+        public void SerializeJson(Utf8JsonWriter jsonWriter)
+        {
+            jsonWriter.WriteStartObject("verificationMethodMap");
+
+            jsonWriter.WriteString("id", Id);
+            jsonWriter.WriteString("comment", Comment);
+            jsonWriter.WriteString("controller", Controller);
+            jsonWriter.WriteString("type_", Type_);
+            jsonWriter.WriteString("publicKeyMultibase", PublicKeyMultibase);
+            jsonWriter.WriteString("publicKeyBase58", PublicKeyBase58);
+            jsonWriter.WriteString("privateKeyBase58", PrivateKeyBase58);
+
+            jsonWriter.WriteStartObject("publicKeyJwk");
+            jsonWriter.WriteString("crv", PublicKeyJwk.crv);
+            jsonWriter.WriteString("e", PublicKeyJwk.e);
+            jsonWriter.WriteString("n", PublicKeyJwk.n);
+            jsonWriter.WriteString("x", PublicKeyJwk.x);
+            jsonWriter.WriteString("y", PublicKeyJwk.y);
+            jsonWriter.WriteString("kty", PublicKeyJwk.kty);
+            jsonWriter.WriteString("kid", PublicKeyJwk.kid);
+            jsonWriter.WriteEndObject();
+
+            jsonWriter.WriteEndObject();
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+
+            hash.Add(Id);
+            hash.Add(Comment);
+            hash.Add(Type_);
+            hash.Add(Controller);
+            hash.Add(PublicKeyMultibase);
+            hash.Add(PublicKeyJwk);
+            hash.Add(PublicKeyBase58);
+            hash.Add(PrivateKeyBase58);
+
+            return hash.ToHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VerificationMethodMap other)
+            {
+                if (Id != other.Id)
+                    return false;
+
+                if (Comment != other.Comment)
+                    return false;
+
+                if (Type_ != other.Type_)
+                    return false;
+
+                if (Controller != other.Controller)
+                    return false;
+
+                if (PublicKeyMultibase != other.PublicKeyMultibase)
+                    return false;
+
+                if (PublicKeyBase58 != other.PublicKeyBase58)
+                    return false;
+
+                if (PrivateKeyBase58 != other.PrivateKeyBase58)
+                    return false;
+
+                if (!PublicKeyJwk.Equals(other.PublicKeyJwk))
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion
+    }
+
+    #endregion
+
     public enum DnsResourceRecordType : ushort
     {
+        #region DNS
+
         Unknown = 0,
         A = 1,
         NS = 2,
@@ -117,6 +485,30 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         ANAME = 65280, //private use - draft-ietf-dnsop-aname-04
         FWD = 65281, //private use - conditional forwarder
         APP = 65282, //private use - application
+
+        #endregion
+
+        #region DID
+
+        //private use - DID resource record types
+        DIDID = 65488,
+        DIDPURP = 65489,
+        DIDCOMM = 65490,
+        DIDCTXT = 65491,
+        DIDAKA = 65492,
+        DIDCTLR = 65493,
+        DIDVM = 65494,
+        DIDAUTH = 65495,
+        DIDAM = 65496,
+        DIDKA = 65500,
+        DIDCI = 65501,
+        DIDCD = 65502,
+        DIDSVC = 65503,
+        DIDREL = 65504,
+
+        #endregion
+
+        UUBLAddress = 65472,
     }
 
     public enum DnsClass : ushort
@@ -291,6 +683,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             switch (type)
             {
+                #region DNS RRs
+
                 case DnsResourceRecordType.A:
                     return new DnsARecordData(s);
 
@@ -365,6 +759,57 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 
                 case DnsResourceRecordType.APP:
                     return new DnsApplicationRecordData(s);
+
+                #endregion
+
+                #region DID RRs
+
+                // single string value did RR types:
+                case DnsResourceRecordType.DIDID:
+                    return new DnsDIDIDRecordData(s);
+
+                case DnsResourceRecordType.DIDPURP:
+                    return new DnsDIDPURPRecordData(s);
+
+                case DnsResourceRecordType.DIDCOMM:
+                    return new DnsDIDCOMMRecordData(s);
+
+                case DnsResourceRecordType.DIDCTXT:
+                    return new DnsDIDCTXTRecordData(s);
+
+                case DnsResourceRecordType.DIDAKA:
+                    return new DnsDIDAKARecordData(s);
+
+                case DnsResourceRecordType.DIDCTLR:
+                    return new DnsDIDCTLRRecordData(s);
+
+                // verification method map did RR types
+                case DnsResourceRecordType.DIDVM:
+                    return new DnsDIDVMRecordData(s);
+
+                case DnsResourceRecordType.DIDAUTH:
+                    return new DnsDIDAUTHRecordData(s);
+
+                case DnsResourceRecordType.DIDAM:
+                    return new DnsDIDAMRecordData(s);
+
+                case DnsResourceRecordType.DIDKA:
+                    return new DnsDIDKARecordData(s);
+
+                case DnsResourceRecordType.DIDCI:
+                    return new DnsDIDCIRecordData(s);
+
+                case DnsResourceRecordType.DIDCD:
+                    return new DnsDIDCDRecordData(s);
+
+                // service map did RR types
+                case DnsResourceRecordType.DIDSVC:
+                    return new DnsDIDSVCRecordData(s);
+
+                case DnsResourceRecordType.DIDREL:
+                    return new DnsDIDRELRecordData(s);
+
+                #endregion
 
                 default:
                     return new DnsUnknownRecordData(s);
