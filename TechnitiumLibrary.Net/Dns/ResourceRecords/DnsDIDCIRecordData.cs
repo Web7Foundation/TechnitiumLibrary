@@ -91,7 +91,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             jsonWriter.WriteStartObject();
 
-            _vmm.SerializeJson(jsonWriter, "capabilityInvocation");
+            _vmm.SerializeJson(jsonWriter);
 
             jsonWriter.WriteEndObject();
         }
