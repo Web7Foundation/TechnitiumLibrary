@@ -505,6 +505,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         DIDCD = 65502,
         DIDSVC = 65503,
         DIDREL = 65504,
+        DIDSIG = 65505,
 
         #endregion
 
@@ -767,6 +768,9 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
                 // single string value did RR types:
                 case DnsResourceRecordType.DIDID:
                     return new DnsDIDIDRecordData(s);
+
+                case DnsResourceRecordType.DIDSIG:
+                    return new DnsDIDSIGRecordData(s);
 
                 case DnsResourceRecordType.DIDPURP:
                     return new DnsDIDPURPRecordData(s);
