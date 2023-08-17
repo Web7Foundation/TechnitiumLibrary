@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using static TechnitiumLibrary.Net.Dns.ResourceRecords.DIDCommComponents;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
